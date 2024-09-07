@@ -1,11 +1,41 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
-	ProbeerAll([]int{30, 3, 6, 9}, []int{48, 30, 87, 36, 18, 54, 60, 531})
+	//ProbeerAll([]int{30, 3, 6, 9}, []int{48, 30, 87, 36, 18, 64, 60, 531})
+	startTime := time.Now()
+	ProbeerFull([]int{30, 3, 6, 9})
+	fmt.Println("Duur:", time.Since(startTime))
 	//antwoord := Probeer([]int{30, 3, 6, 9}, 531)
 	//fmt.Printf("%s = %d\n", antwoord.String(), antwoord.Evaluate())
+}
+
+func ProbeerFull(getallen []int) {
+	var nodes []Node
+	for i := 0; i < len(getallen); i++ {
+		nodes = append(nodes, L(getallen[i]))
+	}
+
+	antwoorden := ProbeerN(nodes)
+
+	maxAnt := 1
+
+	for i := 0; i < len(getallen); i++ {
+		maxAnt *= getallen[i]
+	}
+
+	for antwoord := 0; antwoord <= maxAnt; antwoord++ {
+		for _, a := range antwoorden {
+			if a.Evaluate() == antwoord {
+				fmt.Printf("%s = %d\n", a.String(), a.Evaluate())
+				break
+			}
+		}
+	}
 }
 
 func ProbeerAll(getallen []int, antwoorden []int) {
