@@ -3,45 +3,56 @@ package main
 import "fmt"
 
 func main() {
-	antwoord := Probeer([]int{600, 40, 20, 8}, 610)
-	fmt.Printf("%s = %d\n", antwoord.String(), antwoord.Evaluate())
+	ProbeerAll([]int{30, 3, 6, 9}, []int{48, 30, 87, 36, 18, 54, 60, 531})
+	//antwoord := Probeer([]int{30, 3, 6, 9}, 531)
+	//fmt.Printf("%s = %d\n", antwoord.String(), antwoord.Evaluate())
 }
 
-func Probeer(getallen []int, antwoord int) Node {
+func ProbeerAll(getallen []int, antwoorden []int) {
+	for _, antwoord := range antwoorden {
+		ants := Probeer(getallen, antwoord)
+		if len(ants) == 0 {
+			fmt.Printf("Niet gevonden voor %d\n", antwoord)
+			continue
+		}
+		for _, ant := range ants {
+			fmt.Printf("%s = %d\n", ant.String(), ant.Evaluate())
+		}
+	}
+}
+
+func Probeer(getallen []int, antwoord int) []Node {
 	var nodes []Node
 	for i := 0; i < len(getallen); i++ {
 		nodes = append(nodes, L(getallen[i]))
 	}
 
+	var result []Node
+
 	antwoorden := ProbeerN(nodes)
 	for _, a := range antwoorden {
 		if a.Evaluate() == antwoord {
-			return a
+			result = append(result, a)
 		}
 	}
-	panic("niet gevonden")
+	return result
 }
 
 func ProbeerN(nodes []Node) []Node {
 	if len(nodes) == 1 {
 		return nodes
 	}
-	if len(nodes) == 2 {
-		return Probeer2(nodes[0], nodes[1])
-	}
 
 	var result []Node
-	// A: combine first two nodes
-	for _, a := range Probeer2(nodes[0], nodes[1]) {
-		// B: combine result of A with the rest of the nodes
-		for _, b := range ProbeerN(nodes[2:]) {
-			result = append(result, Probeer2(a, b)...)
-		}
-	}
 
-	// C: don't combine the first two, but keep the first node standalone
-	for _, c := range ProbeerN(nodes[1:]) {
-		result = append(result, Probeer2(nodes[0], c)...)
+	for i := 0; i < len(nodes)-1; i++ {
+		left := ProbeerN(nodes[0 : i+1])
+		for _, l := range left {
+			right := ProbeerN(nodes[i+1:])
+			for _, r := range right {
+				result = append(result, Probeer2(l, r)...)
+			}
+		}
 	}
 
 	return result
